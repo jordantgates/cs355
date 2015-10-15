@@ -1,0 +1,83 @@
+[
+  {
+    "size": 203.0,
+    "color": {
+      "value": -1,
+      "falpha": 0.0
+    },
+    "center": {
+      "x": 154.5,
+      "y": 221.5
+    },
+    "rotation": 0.0,
+    "SHAPE_TYPE": "cs355.model.drawing.Square"
+  },
+  {
+    "a": {
+      "x": 89.66666666666666,
+      "y": -117.66666666666669
+    },
+    "b": {
+      "x": -92.33333333333334,
+      "y": -46.666666666666686
+    },
+    "c": {
+      "x": 2.666666666666657,
+      "y": 164.33333333333331
+    },
+    "color": {
+      "value": -256,
+      "falpha": 0.0
+    },
+    "center": {
+      "x": 237.33333333333334,
+      "y": 294.6666666666667
+    },
+    "rotation": -1.4776430140729158,
+    "SHAPE_TYPE": "cs355.model.drawing.Triangle"
+  },
+  {
+    "end": {
+      "x": 79.0,
+      "y": -317.0
+    },
+    "color": {
+      "value": -256,
+      "falpha": 0.0
+    },
+    "center": {
+      "x": 165.0,
+      "y": 405.0
+    },
+    "rotation": 0.0,
+    "SHAPE_TYPE": "cs355.model.drawing.Line"
+  },
+  {
+    "width": 389.0,
+    "height": 181.0,
+    "color": {
+      "value": -1,
+      "falpha": 0.0
+    },
+    "center": {
+      "x": 304.5,
+      "y": 250.5
+    },
+    "rotation": 4.883270127119177,
+    "SHAPE_TYPE": "cs355.model.drawing.Ellipse"
+  },
+  {
+    "width": 0.0,
+    "height": 0.0,
+    "color": {
+      "value": -1,
+      "falpha": 0.0
+    },
+    "center": {
+      "x": 402.0,
+      "y": 190.0
+    },
+    "rotation": 0.0,
+    "SHAPE_TYPE": "cs355.model.drawing.Ellipse"
+  }
+]
