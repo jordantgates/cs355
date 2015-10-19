@@ -2,8 +2,7 @@ package userCode;
 
 import java.awt.Color;
 import java.awt.geom.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import cs355.model.drawing.*;
 
