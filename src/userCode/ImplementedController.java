@@ -18,6 +18,12 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	private DrawingModel model;
 	private Color currentColor;
 
+	
+	private double viewZoomScale=1;
+	private Double viewOffset = new Double(512,512);
+	private final int maxDrawArea=2048;
+	private double viewableArea;
+
 	private Point startClick;
 	private Double originalCenter;
 	private double objSpaceRotateStart;
@@ -32,10 +38,12 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	private enum State {DRAW,SELECT};
 	private enum dragMode {MOVE,ROTATE,LINEMOVE};
 
-	public ImplementedController(DrawingModel model) {
-		this.model=model;
+	public ImplementedController() {
+		this.model=new DrawingModel();
 		shapeB=new ShapeBuilder();
-		currentColor=Color.white;
+		currentColor=new Color(128,128,128);
+		
+		
 	}
 
 	// Color.
@@ -193,7 +201,7 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 			else if(myState==State.SELECT){
 				Point2D.Double usablePoint=new Point2D.Double(e.getX(),e.getY());
 				startClick=e.getPoint();
-				if(model.isSelectedShapeHandle(usablePoint, 7)){
+				if(model.isSelectedShapeHandle(usablePoint, 6.0/viewZoomScale)){
 					if(selectedShape instanceof Line){
 						draggingReason=dragMode.LINEMOVE;
 						Line selected =((Line)selectedShape);
@@ -234,7 +242,7 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	}
 
 	private void selectShape(Point2D.Double usablePoint) {
-		selectedShape=model.getTopShapeUnderPoint(usablePoint, 4);
+		selectedShape=model.getTopShapeUnderPoint(usablePoint, 4.0/viewZoomScale);
 
 		if(selectedShape!=null){
 			currentColor=selectedShape.getColor();
@@ -338,13 +346,35 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	/**
 	 * Called when the user hits the zoom in button.
 	 */
-	public void zoomInButtonHit(){			
+	public void zoomInButtonHit(){		
+		if(viewZoomScale<4)
+			viewZoomScale*=2.0;
+		GUIFunctions.setZoomText(viewZoomScale);
+		GUIFunctions.setHScrollBarKnob((int) (512/viewZoomScale));
+		GUIFunctions.setVScrollBarKnob((int) (512/viewZoomScale));
+		GUIFunctions.setHScrollBarPosit((int)viewOffset.x);
+		GUIFunctions.setVScrollBarPosit((int)viewOffset.y);
+		
 	}
 
 	/**
 	 * Called when the user hits the zoom out button.
 	 */
 	public void zoomOutButtonHit(){
+		if(viewZoomScale>.25)
+			viewZoomScale/=2.0;
+		
+		GUIFunctions.setZoomText(viewZoomScale);
+		
+		GUIFunctions.setHScrollBarMin(0);
+		GUIFunctions.setHScrollBarMax(maxDrawArea);
+		GUIFunctions.setHScrollBarKnob((int) (512/viewZoomScale));
+		GUIFunctions.setHScrollBarPosit((int)viewOffset.x);
+		
+		GUIFunctions.setVScrollBarKnob((int) (512/viewZoomScale));
+		GUIFunctions.setVScrollBarPosit((int)viewOffset.y);
+		GUIFunctions.setVScrollBarMin(0);
+		GUIFunctions.setVScrollBarMax(maxDrawArea);
 
 	}
 
@@ -355,7 +385,7 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	 *            = the new position.
 	 */
 	public void hScrollbarChanged(int value){
-
+		System.out.println(value);
 	}
 
 	/**
@@ -366,6 +396,7 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	 */
 	public void vScrollbarChanged(int value){
 
+		System.out.println(value);
 	}
 
 	// 3D Model.
@@ -495,5 +526,12 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	 */
 	public void doChangeBrightness(int brightnessAmountNum){
 
+	}
+
+	public double getZoomLevel(){
+		return viewZoomScale;
+	}
+	public DrawingModel getModel(){
+		return model;
 	}
 }

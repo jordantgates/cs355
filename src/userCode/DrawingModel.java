@@ -212,7 +212,7 @@ public class DrawingModel extends CS355Drawing {
 		return false;
 	}
 
-	public Shape getTopShapeUnderPoint(Point2D.Double worldPoint, int tolerance){
+	public Shape getTopShapeUnderPoint(Point2D.Double worldPoint, double tolerance){
 		for(Shape shape:getShapesReversed()){
 			Point2D.Double objPoint= transformWorldtoObjectPoint(shape,worldPoint);
 			if(shape.pointInShape(objPoint, tolerance)){

@@ -20,8 +20,8 @@ public class CS355 {
 	public static void main(String[] args) {
 
 		// Fill in the parameters below with your controller and view.
-		DrawingModel model = new DrawingModel();
-		GUIFunctions.createCS355Frame(new ImplementedController(model), new ImplementedViewRefresher(model));
+		ImplementedController ic =new ImplementedController();
+		GUIFunctions.createCS355Frame(ic, new ImplementedViewRefresher(ic));
 
 		GUIFunctions.refresh();
 	}

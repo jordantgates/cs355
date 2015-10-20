@@ -23,8 +23,10 @@ import cs355.view.ViewRefresher;
 public class ImplementedViewRefresher implements ViewRefresher {
 	List<Shape> currentShapes;
 	Shape currentSelected;
-	public ImplementedViewRefresher(DrawingModel model) {
-		model.addObserver(this);
+	ImplementedController theController;
+	public ImplementedViewRefresher(ImplementedController ic) {
+		theController=ic;
+		theController.getModel().addObserver(this);
 	}
 
 	@Override
