@@ -1,7 +1,6 @@
 package cs355.solution;
 
 import cs355.GUIFunctions;
-import userCode.DrawingModel;
 import userCode.ImplementedController;
 import userCode.ImplementedViewRefresher;
 

@@ -1,10 +1,6 @@
 package userCode;
 
-import java.awt.Color;
 import java.awt.geom.*;
-import java.util.ArrayList;
-import java.util.List;
-
 import cs355.model.drawing.*;
 
 public class ShapeConverter {
