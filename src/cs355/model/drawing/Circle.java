@@ -78,10 +78,10 @@ public class Circle extends Shape {
 	}
 
 	@Override
-	public List<Circle> getHandles(double circleRadius) {
+	public List<Circle> getHandles(double circleRadius,double handleDistance) {
 		List<Circle> newElements=new ArrayList<Circle>();
 		
-		Point2D.Double rotateControl=new Point2D.Double(0, (radius)+10.0);
+		Point2D.Double rotateControl=new Point2D.Double(0, (radius)+handleDistance);
 
 		newElements.add(new Circle(rotateControl, circleRadius));
 		

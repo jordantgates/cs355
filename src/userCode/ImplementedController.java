@@ -1,8 +1,8 @@
 package userCode;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.File;
@@ -18,13 +18,14 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	private DrawingModel model;
 	private Color currentColor;
 
-	
-	private double viewZoomScale=1;
-	private Double viewOffset = new Double(512,512);
-	private final int maxDrawArea=2048;
-	private double viewableArea;
 
-	private Point startClick;
+	private double viewZoomScale=1;
+	private Double viewOffset = new Double(768,768);
+	private final int maxDrawArea=2048;
+	private boolean ignoreBarEvents=false;
+
+
+	private Double  usablePoint=new Double();
 	private Double originalCenter;
 	private double objSpaceRotateStart;
 
@@ -42,8 +43,8 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 		this.model=new DrawingModel();
 		shapeB=new ShapeBuilder();
 		currentColor=new Color(128,128,128);
-		
-		
+
+
 	}
 
 	// Color.
@@ -156,14 +157,16 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	//////Mouse Buttons
 	@Override
 	public void mouseDragged(MouseEvent e){
+		Double eventPoint=new Double(e.getX(),e.getY());
+		TransformBuilder.viewToWorld(getScreenDims()).transform(eventPoint, eventPoint);
 		switch(myState){
 		case DRAW:
-			shapeB.secondPointUpdate(e.getPoint());
+			shapeB.secondPointUpdate(eventPoint);
 			model.emptyModelUpdate();
 			break;
 		case SELECT:
 			if(selectedShape!=null){
-				Point2D.Double delta= new Double(e.getX()-startClick.x,e.getY()-startClick.y);
+				Double delta= new Double(eventPoint.x-usablePoint.x,eventPoint.y-usablePoint.y);
 				switch(draggingReason){
 				case LINEMOVE:
 					Line selected =((Line)selectedShape);
@@ -181,7 +184,7 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 					selectedShape.setCenter(newCenter);
 					break;
 				case ROTATE:
-					double rotation=angleFromATan(selectedShape, startClick, e.getPoint())+objSpaceRotateStart;
+					double rotation=angleFromATan(selectedShape, eventPoint)+objSpaceRotateStart;
 					selectedShape.setRotation(rotation);
 					break;
 				}
@@ -194,20 +197,20 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if(e.getButton()==MouseEvent.BUTTON1){
+			TransformBuilder.viewToWorld(getScreenDims()).transform(new Point2D.Double(e.getX(),e.getY()),usablePoint);
 			if(myState==State.DRAW){
 				selectedShape=null;
-				drawPress(e.getPoint());
+				drawPress();
 			}
 			else if(myState==State.SELECT){
-				Point2D.Double usablePoint=new Point2D.Double(e.getX(),e.getY());
-				startClick=e.getPoint();
-				if(model.isSelectedShapeHandle(usablePoint, 6.0/viewZoomScale)){
+				if(model.isSelectedShapeHandle(usablePoint, 6.0/viewZoomScale, 10.0/viewZoomScale)){
 					if(selectedShape instanceof Line){
 						draggingReason=dragMode.LINEMOVE;
 						Line selected =((Line)selectedShape);
-						usablePoint=model.transformWorldtoObjectPoint(selectedShape, usablePoint);
-						double distanceA=new Double().distance(usablePoint);
-						double distanceB=selected.getEnd().distance(usablePoint);
+						Double linePoint=new Double();
+						TransformBuilder.worldToObject(selected).transform(usablePoint, linePoint);
+						double distanceA=new Double().distance(linePoint);
+						double distanceB=selected.getEnd().distance(linePoint);
 						lineFront=(distanceA<distanceB);
 						originalCenter=selected.getCenter();
 						originalEnd=selected.getEnd();
@@ -227,21 +230,22 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 		model.emptyModelUpdate();
 	}
 
-	private void drawPress(Point point) {
+	private void drawPress() {
 		if(currentShapeClass==Triangle.class){
 			if(shapeB.isTriangleInProgess()){
-				shapeB.addTrianglePoint(point);
+				shapeB.addTrianglePoint(usablePoint);
 				model.emptyModelUpdate();
-				return;}
+				return;
+				}
 		}
-		Shape newShape=shapeB.startShape(currentShapeClass,point,currentColor);
+		Shape newShape=shapeB.startShape(currentShapeClass,usablePoint,currentColor);
 		if(newShape!=null)
 			model.addShape(newShape);
 		model.emptyModelUpdate();
 
 	}
 
-	private void selectShape(Point2D.Double usablePoint) {
+	private void selectShape(Double usablePoint) {
 		selectedShape=model.getTopShapeUnderPoint(usablePoint, 4.0/viewZoomScale);
 
 		if(selectedShape!=null){
@@ -336,45 +340,73 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 
 	/////ROTATING
 
-	private double angleFromATan(Shape targetShape, Point first, Point second){
-		Point2D.Double a=model.transformWorldtoObjectPoint(targetShape,new Point2D.Double(first.x,first.y));
-		Point2D.Double b=model.transformWorldtoObjectPoint(targetShape,new Point2D.Double(second.x,second.y));
-		return Math.atan2(b.y,b.x)-Math.atan2(a.y,a.x);
+	private double angleFromATan(Shape targetShape, Double b){
+		Double a = new Double(usablePoint.x,usablePoint.y);
+		AffineTransform viewToObj=TransformBuilder.worldToObject(targetShape);
+		viewToObj.transform(a, a);
+		viewToObj.transform(b, b);
+		double angle=Math.atan2(b.y,b.x)-Math.atan2(a.y,a.x);
+		return angle;
+		
 	}
+
 	// Zooming.
 
 	/**
 	 * Called when the user hits the zoom in button.
 	 */
 	public void zoomInButtonHit(){		
-		if(viewZoomScale<4)
-			viewZoomScale*=2.0;
+		if(viewZoomScale>=4)
+			return;
+
+		viewZoomScale*=2.0;
+		viewOffset.x+=(256/viewZoomScale);
+		viewOffset.y+=(256/viewZoomScale);
+		
+		ignoreBarEvents=true;
+		
 		GUIFunctions.setZoomText(viewZoomScale);
 		GUIFunctions.setHScrollBarKnob((int) (512/viewZoomScale));
 		GUIFunctions.setVScrollBarKnob((int) (512/viewZoomScale));
-		GUIFunctions.setHScrollBarPosit((int)viewOffset.x);
-		GUIFunctions.setVScrollBarPosit((int)viewOffset.y);
+		GUIFunctions.setHScrollBarPosit((int)(viewOffset.x));
+		GUIFunctions.setVScrollBarPosit((int)(viewOffset.y));
+		ignoreBarEvents=false;
+		model.emptyModelUpdate();
 		
+
 	}
 
 	/**
 	 * Called when the user hits the zoom out button.
 	 */
 	public void zoomOutButtonHit(){
-		if(viewZoomScale>.25)
-			viewZoomScale/=2.0;
+
+		if(viewZoomScale<=.25)
+			return;
+
+		viewZoomScale*=0.5;
+		viewOffset.x-=(128/viewZoomScale);
+		if(viewOffset.x<0)
+			viewOffset.x=0;
+		if(viewOffset.x>maxDrawArea-+((int) (512/viewZoomScale)))
+			viewOffset.x=maxDrawArea-+((int) (512/viewZoomScale));
+		viewOffset.y-=(128/viewZoomScale);
+		if(viewOffset.y<0)
+			viewOffset.y=0;
+		if(viewOffset.y>maxDrawArea-((int) (512/viewZoomScale)))
+			viewOffset.y=maxDrawArea-((int) (512/viewZoomScale));
+		
+		
+		ignoreBarEvents=true;
 		
 		GUIFunctions.setZoomText(viewZoomScale);
-		
-		GUIFunctions.setHScrollBarMin(0);
-		GUIFunctions.setHScrollBarMax(maxDrawArea);
+		GUIFunctions.setHScrollBarPosit((int)(viewOffset.x));
+		GUIFunctions.setVScrollBarPosit((int)(viewOffset.y));
 		GUIFunctions.setHScrollBarKnob((int) (512/viewZoomScale));
-		GUIFunctions.setHScrollBarPosit((int)viewOffset.x);
-		
 		GUIFunctions.setVScrollBarKnob((int) (512/viewZoomScale));
-		GUIFunctions.setVScrollBarPosit((int)viewOffset.y);
-		GUIFunctions.setVScrollBarMin(0);
-		GUIFunctions.setVScrollBarMax(maxDrawArea);
+		ignoreBarEvents=false;
+		model.emptyModelUpdate();
+		
 
 	}
 
@@ -385,7 +417,11 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	 *            = the new position.
 	 */
 	public void hScrollbarChanged(int value){
-		System.out.println(value);
+		if(ignoreBarEvents)
+			return;
+		viewOffset.x=value;
+		model.emptyModelUpdate();
+		
 	}
 
 	/**
@@ -395,8 +431,16 @@ public class ImplementedController implements CS355Controller, MouseListener, Mo
 	 *            = the new position.
 	 */
 	public void vScrollbarChanged(int value){
+		if(ignoreBarEvents)
+			return;
+		viewOffset.y=value;
+		model.emptyModelUpdate();
+		
 
-		System.out.println(value);
+	}
+
+	public ScreenDim getScreenDims() {
+		return new ScreenDim(viewZoomScale, viewOffset);
 	}
 
 	// 3D Model.

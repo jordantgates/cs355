@@ -63,7 +63,7 @@ public class Line extends Shape {
 	}
 
 	@Override
-	public List<Circle> getHandles(double circleRadius) {
+	public List<Circle> getHandles(double circleRadius,double handleDistance) {
 		List<Circle> newElements=new ArrayList<Circle>();
 		newElements.add(new Circle(new Point2D.Double(0,0), circleRadius));
 		newElements.add(new Circle(end, circleRadius));

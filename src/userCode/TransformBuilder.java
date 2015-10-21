@@ -25,6 +25,12 @@ public class TransformBuilder {
 		result.concatenate(rotate(reference.getRotation()));
 		return result;
 	}
+	
+	public static AffineTransform worldToObject(Shape reference){
+		AffineTransform result=rotate(reference.getRotation()*-1.0);
+		result.concatenate(translate(negatePoint(reference.getCenter())));
+		return result;
+	}
 
 	public static AffineTransform worldToView(ScreenDim dimensions){
 		AffineTransform result=zoom(dimensions.getMagnificationLevel());
@@ -33,22 +39,19 @@ public class TransformBuilder {
 	}
 
 	public static AffineTransform viewToWorld(ScreenDim dimensions){
-		AffineTransform result=zoom(dimensions.getMagnificationLevel());
-		result.concatenate(translate(negatePoint(dimensions.getScreenOffset())));
+		AffineTransform result=translate((dimensions.getScreenOffset()));
+		result.concatenate(zoom(1/dimensions.getMagnificationLevel()));
 		return result;
 	}
 	
-	public static AffineTransform worldToObject(Shape reference){
-		AffineTransform result=translate(reference.getCenter());
-		result.concatenate(rotate(reference.getRotation()));
-		return result;
-	}
+	
 	
 	public static AffineTransform translate(Double delta){
 		return new AffineTransform(1,0,0, 1, delta.x, delta.y);
 	}
 
 	public static AffineTransform rotate(double theta){
+		theta=theta/-1;
 		return new AffineTransform(Math.cos(theta),-Math.sin(theta),Math.sin(theta), Math.cos(theta), 0, 0);
 	}
 
@@ -56,7 +59,7 @@ public class TransformBuilder {
 		return new AffineTransform(scale,0,0, scale, 0, 0);
 	}
 
-	private static Double negatePoint(Double original){
+	public static Double negatePoint(Double original){
 		return new Double(original.x*-1.0,original.y*-1.0);
 	}
 }
