@@ -85,10 +85,10 @@ public class Ellipse extends Shape {
 	}
 
 	@Override
-	public List<Circle> getHandles(double circleRadius) {
+	public List<Circle> getHandles(double circleRadius,double handleDistance) {
 		List<Circle> newElements=new ArrayList<Circle>();
 
-		Point2D.Double rotateControl=new Point2D.Double(0, (height/2)+10.0);
+		Point2D.Double rotateControl=new Point2D.Double(0, (height/2)+handleDistance);
 		newElements.add(new Circle(rotateControl, circleRadius));
 
 		return newElements;

@@ -41,8 +41,8 @@ public class ShapeConverter {
 			int y1=(int)(tri.getA().y);
 			int y2=(int)(tri.getB().y);
 			int y3=(int)(tri.getC().y);
-
-			return new java.awt.Polygon(new int[]{x1,x2,x3},new int[]{y1,y2,y3},3);
+			java.awt.Polygon newTri=new java.awt.Polygon(new int[]{x1,x2,x3},new int[]{y1,y2,y3},3);
+			return newTri;
 		}
 		return null;
 	}

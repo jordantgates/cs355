@@ -64,11 +64,11 @@ public class Square extends Shape {
 	}
 
 	@Override
-	public List<Circle> getHandles(double circleRadius) {
+	public List<Circle> getHandles(double circleRadius,double handleDistance) {
 		double halfSize=size/2.0;
 		List<Circle> newElements=new ArrayList<Circle>();
 		
-		Point2D.Double rotateControl=new Point2D.Double(0, (halfSize)+10.0);
+		Point2D.Double rotateControl=new Point2D.Double(0, (halfSize)+handleDistance);
 		newElements.add(new Circle(rotateControl, circleRadius));
 		
 		return newElements;

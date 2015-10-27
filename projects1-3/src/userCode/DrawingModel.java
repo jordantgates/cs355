@@ -1,7 +1,5 @@
 package userCode;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -204,17 +202,19 @@ public class DrawingModel extends CS355Drawing {
 		return null;
 	}
 
-	public boolean isSelectedShapeHandle(Point2D.Double worldPoint, double circleRadius){
+	public boolean isSelectedShapeHandle(Double worldPoint, double circleRadius, double handleDistance){
 		if(currentShapeIndex>-1){
 			Shape targetShape=getSelectedShape();
-			Point2D.Double objPoint= transformWorldtoObjectPoint(targetShape,worldPoint);
-			return targetShape.pointInHandle(objPoint, circleRadius);}
+			Double objPoint=new Double();
+			TransformBuilder.worldToObject(targetShape).transform(worldPoint, objPoint);
+			return targetShape.pointInHandle(objPoint, circleRadius, handleDistance);}
 		return false;
 	}
 
-	public Shape getTopShapeUnderPoint(Point2D.Double worldPoint, double tolerance){
+	public Shape getTopShapeUnderPoint(Double worldPoint, double tolerance){
+		Double objPoint=new Double();
 		for(Shape shape:getShapesReversed()){
-			Point2D.Double objPoint= transformWorldtoObjectPoint(shape,worldPoint);
+			TransformBuilder.worldToObject(shape).transform(worldPoint, objPoint);
 			if(shape.pointInShape(objPoint, tolerance)){
 				return shape;}
 		}
@@ -222,28 +222,4 @@ public class DrawingModel extends CS355Drawing {
 
 	}
 
-	public Point2D.Double transformWorldtoObjectPoint(Shape targetShape, Point2D.Double worldPoint) {
-		AffineTransform objToWorld = new AffineTransform();
-		Point2D.Double objPoint=new Point2D.Double();
-		Double translation = targetShape.getCenter();
-		// rotate to its orientation (first transformation)
-		objToWorld.rotate(-targetShape.getRotation());
-		// translate to its position in the world (last transformation)
-		objToWorld.translate(-translation.x, -translation.y);
-		// set the point transformation
-		objToWorld.transform(worldPoint, objPoint);
-		return objPoint;
-	}
-	public Point2D.Double transformWorldtoObjectPoint(Shape targetShape, Point2D.Double worldPoint,Double centerOverload) {
-		AffineTransform objToWorld = new AffineTransform();
-		Double objPoint=new Double();
-		Double translation = centerOverload;
-		// rotate to its orientation (first transformation)
-		objToWorld.rotate(-targetShape.getRotation());
-		// translate to its position in the world (last transformation)
-		objToWorld.translate(-translation.x, -translation.y);
-		// set the point transformation
-		objToWorld.transform(worldPoint, objPoint);
-		return objPoint;
-	}
 }

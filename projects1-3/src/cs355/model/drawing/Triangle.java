@@ -111,11 +111,11 @@ public class Triangle extends Shape {
 		return (pt.x - ptY.x) * (ptX.y - ptY.y) - (ptX.x - ptY.x) * (pt.y - ptY.y);
 	}
 	@Override
-	public List<Circle> getHandles(double circleRadius) {
+	public List<Circle> getHandles(double circleRadius,double handleDistance) {
 		List<Circle> newElements=new ArrayList<Circle>();
 		
-		double ratio=40.0/center.distance(a);
-		Point2D.Double handleCenter= new Point2D.Double(a.x*ratio+a.x,a.y*ratio+a.y);
+		double aLength=new Double(0,0).distance(a);
+		Point2D.Double handleCenter= new Point2D.Double(((a.x*handleDistance)/aLength)+a.x,((a.y*handleDistance)/aLength)+a.y);
 
 		newElements.add(new Circle(handleCenter, circleRadius));
 		

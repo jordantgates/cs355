@@ -24,6 +24,8 @@ public class ImplementedViewRefresher implements ViewRefresher {
 	List<Shape> currentShapes;
 	Shape currentSelected;
 	ImplementedController theController;
+	ScreenDim currentScreenDims;
+
 	public ImplementedViewRefresher(ImplementedController ic) {
 		theController=ic;
 		theController.getModel().addObserver(this);
@@ -35,6 +37,7 @@ public class ImplementedViewRefresher implements ViewRefresher {
 			currentShapes=((DrawingModel)o).getShapes();
 			currentSelected=((DrawingModel)o).getSelectedShape();
 			GUIFunctions.refresh();
+
 		}
 	}
 
@@ -42,6 +45,7 @@ public class ImplementedViewRefresher implements ViewRefresher {
 	public void refreshView(Graphics2D canvas) {
 		canvas.clearRect(0, 0, 3000, 3000);
 		if((canvas!=null)&(currentShapes!=null)){
+			currentScreenDims=theController.getScreenDims();
 			for(Shape currentShape:currentShapes){
 				drawShape(currentShape,canvas,!(currentShape instanceof Line), false, new Double());
 			}
@@ -51,9 +55,10 @@ public class ImplementedViewRefresher implements ViewRefresher {
 
 	}
 	private void drawSelectionOutlines(Graphics2D canvas) {
-		double circleRadius=5.0;
+		double circleRadius=6.0/currentScreenDims.getMagnificationLevel();
+		double handleDistance=10.0/currentScreenDims.getMagnificationLevel();
 		List<Shape> newElements= new ArrayList<Shape>();
-		newElements.addAll(currentSelected.getHandles(circleRadius));
+		newElements.addAll(currentSelected.getHandles(circleRadius, handleDistance));
 		if(currentSelected instanceof Square){
 			newElements.add(new Square(((Square) currentSelected).getSize()));
 		}
@@ -84,12 +89,14 @@ public class ImplementedViewRefresher implements ViewRefresher {
 	}
 
 	private void drawShape(Shape currentShape, Graphics2D canvas, boolean filled, boolean highlighting, Double initialOffset){
-		AffineTransform transform;
+
 		java.awt.Shape convertedShape=ShapeConverter.convert(currentShape);
-		//set-up transform
-		transform = generateTransform(currentShape, initialOffset);
+		AffineTransform pretransform = TransformBuilder.translate(initialOffset);
+		AffineTransform transform = TransformBuilder.objectToView(currentShape, currentScreenDims);
+		transform.concatenate(pretransform);
+
 		canvas.setTransform(transform);
-		canvas.setStroke(new BasicStroke(2));
+		canvas.setStroke(new BasicStroke((float)(2.0/currentScreenDims.getMagnificationLevel())));
 
 		if(convertedShape!=null){
 			Color currentColor =currentShape.getColor();
@@ -103,18 +110,6 @@ public class ImplementedViewRefresher implements ViewRefresher {
 			else
 				canvas.draw(convertedShape);}
 
-	}
-
-	private AffineTransform generateTransform(Shape currentShape, Double initialOffset) {
-		AffineTransform objToWorld = new AffineTransform();
-		Double worldOffset = currentShape.getCenter();
-		// translate to its position in the world (last transformation)
-		objToWorld.translate(worldOffset.x, worldOffset.y);
-		// rotate to its orientation (first transformation)
-		objToWorld.rotate(currentShape.getRotation());
-		// set the drawing transformation
-		objToWorld.translate(initialOffset.x, initialOffset.y);
-		return objToWorld;
 	}
 
 }

@@ -87,14 +87,14 @@ public abstract class Shape {
 	 */
 	public abstract boolean pointInShape(Point2D.Double pt, double tolerance);
 	
-	public boolean pointInHandle(Point2D.Double pt, double circleRadius){
-		for(Circle circ:getHandles(circleRadius)){
+	public boolean pointInHandle(Point2D.Double pt, double circleRadius, double handleDistance){
+		for(Circle circ:getHandles(circleRadius, handleDistance)){
 			if(circ.center.distance(pt)<=circleRadius)
 				return true;}
 		return false;
 	}
 
-	public abstract List<Circle> getHandles(double circleRadius);
+	public abstract List<Circle> getHandles(double circleRadius, double handleDistance);
 	
 	public String toString(){
 		return this.getClass().getSimpleName()+" at "+((int)(center.x))+", "+((int)(center.y));

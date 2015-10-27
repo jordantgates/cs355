@@ -1,8 +1,6 @@
 package userCode;
 
 import java.awt.Color;
-import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
 import cs355.model.drawing.*;
@@ -10,11 +8,10 @@ import cs355.model.drawing.*;
 public class ShapeBuilder {
 	Shape currentShape;
 	
-	Point2D.Double firstPoint;
+	Double firstPoint;
 	Boolean triangleInProgess;
-	public Shape startShape(Class<?> shape, Point point, Color color) {
-
-		firstPoint=new Point2D.Double(point.getX(),point.getY());
+	public Shape startShape(Class<?> shape, Double usablePoint, Color color) {
+		firstPoint=new Double(usablePoint.x,usablePoint.y);
 		if(isTriangleInProgess()){
 			triangleInProgess=false;
 		}
@@ -26,7 +23,7 @@ public class ShapeBuilder {
 			currentShape=new Ellipse(color, firstPoint, 0 , 0);
 		}
 		else if(shape==Line.class){
-			currentShape= new Line(color, firstPoint, new Point2D.Double(0,0));
+			currentShape= new Line(color, firstPoint, new Double(0,0));
 		}
 		else if(shape==Rectangle.class){
 			currentShape= new Rectangle(color, firstPoint, 0, 0);
@@ -43,8 +40,7 @@ public class ShapeBuilder {
 			return null;
 		return currentShape;
 	}
-	public void secondPointUpdate(Point point){
-		Point2D.Double updatePoint=new Point2D.Double(point.getX(),point.getY());
+	public void secondPointUpdate(Double updatePoint){
 		Bounds bounds;
 
 		if(currentShape instanceof Circle){
@@ -59,7 +55,7 @@ public class ShapeBuilder {
 			((Ellipse)currentShape).setWidth(bounds.width);
 		}
 		else if(currentShape instanceof Line){
-			Point2D.Double delta=new Point2D.Double(point.getX()-currentShape.getCenter().x,point.getY()-currentShape.getCenter().y);
+			Double delta=new Double(updatePoint.getX()-currentShape.getCenter().x,updatePoint.getY()-currentShape.getCenter().y);
 			((Line)currentShape).setEnd(delta);
 		}
 		else if(currentShape instanceof Rectangle){
@@ -79,31 +75,32 @@ public class ShapeBuilder {
 			triangleInProgess=false;
 		return triangleInProgess;
 	}
-	public void addTrianglePoint(Point point) {
+	public void addTrianglePoint(Double point) {
 		Triangle tri= (Triangle)(currentShape);
 		if(tri.getB().equals(tri.getC())){
 			tri.setB(new Double(point.x,point.y));
 		}else{
-			Point2D.Double c=new Point2D.Double(point.x,point.y);
-			Point2D.Double a= tri.getA();
-			Point2D.Double b= tri.getB();
+			
+			Double a= tri.getA();
+			Double b= tri.getB();
+			Double c=new Double(point.x,point.y);
 			double centerX=(a.x+b.x+c.x)/3;
 			double centerY=(a.y+b.y+c.y)/3;
-			Point2D.Double center= new Point2D.Double(centerX,centerY);
+			Double center= new Double(centerX,centerY);
 			tri.setCenter(center);
-			tri.setA(new Point2D.Double(a.x-center.x,a.y-center.y));
-			tri.setB(new Point2D.Double(b.x-center.x,b.y-center.y));
-			tri.setC(new Point2D.Double(c.x-center.x,c.y-center.y));
+			tri.setA(new Double(a.x-center.x,a.y-center.y));
+			tri.setB(new Double(b.x-center.x,b.y-center.y));
+			tri.setC(new Double(c.x-center.x,c.y-center.y));
 			triangleInProgess=false;
 		}
 			
 
 	}
-	private Bounds getSquaredBounds(Point2D.Double second){
+	private Bounds getSquaredBounds(Double second){
 		return new Bounds(firstPoint, second, true);
 
 	}
-	private Bounds getBounds(Point2D.Double second){
+	private Bounds getBounds(Double second){
 		return new Bounds(firstPoint, second, false);
 	}
 	private class Bounds{
@@ -111,7 +108,7 @@ public class ShapeBuilder {
 		double topLeftY;
 		double width;
 		double height;
-		private Bounds(Point2D.Double first,Point2D.Double second, boolean isSquare){
+		private Bounds(Double first,Double second, boolean isSquare){
 			width=Math.abs(first.x-second.x);
 			height=Math.abs(first.y-second.y);
 			if(isSquare){
@@ -139,7 +136,7 @@ public class ShapeBuilder {
 				topLeftY=second.y;
 		}
 		private Double getCenter(){
-			return new Point2D.Double(topLeftX+width/2,topLeftY+height/2);
+			return new Double(topLeftX+width/2,topLeftY+height/2);
 		}
 	}
 	public Shape abortShape() {
