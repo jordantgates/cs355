@@ -2,13 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/jordan/git/cs355/Project4/lwjgl-2.9.3/jar/lwjgl.jar">
+	<classpathentry kind="lib" path="lwjgl-2.9.3/jar/lwjgl.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="http://javadoc.lwjgl.org/"/>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Project4/lwjgl-2.9.3/native/linux"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/jordan/git/cs355/Project4/lwjgl-2.9.3/jar/lwjgl_util.jar">
+	<classpathentry kind="lib" path="lwjgl-2.9.3/jar/lwjgl_util.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Project4/lwjgl-2.9.3/native/linux"/>
 		</attributes>

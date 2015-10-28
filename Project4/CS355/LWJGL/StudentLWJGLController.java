@@ -32,7 +32,7 @@ import static org.lwjgl.opengl.GL11.glLoadIdentity; //loads identity matrix, no 
 import static org.lwjgl.opengl.GL11.glPushMatrix; //pushes clone of top matrix onto stack, no param
 import static org.lwjgl.opengl.GL11.glRotatef; // rotates, angle and 3 components of vector
 import static org.lwjgl.opengl.GL11.glTranslatef; // translate x, y, z amounts
-import static org.lwjgl.opengl.GL11.glViewport; //intialize viewport
+import static org.lwjgl.opengl.GL11.glViewport; //initialize viewport
 import static org.lwjgl.opengl.GL11.glOrtho; //manipulates current matrix with parallel projection, 6 params
 
 import static org.lwjgl.util.glu.GLU.gluPerspective;
@@ -43,6 +43,11 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  */
 public class StudentLWJGLController implements CS355LWJGLController 
 {
+	
+	int myX=0;
+	int myY=0;
+	int myZ=0;
+	int rotation=0;
 
 	//This is a model of a house.
 	//It has a single method that returns an iterator full of Line3Ds.
@@ -58,6 +63,7 @@ public class StudentLWJGLController implements CS355LWJGLController
 	{
 		glViewport(0,0,640,480);
 		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity(); //clear matrix
 	}
 
 	@Override
@@ -73,20 +79,61 @@ public class StudentLWJGLController implements CS355LWJGLController
 	@Override
 	public void updateKeyboard() 
 	{
-		if(Keyboard.isKeyDown(Keyboard.KEY_W)) 
+		//home
+		if(Keyboard.isKeyDown(Keyboard.KEY_H)) 
 		{
-			System.out.println("You are pressing W!");
+			// return to home position
+			myX=0;
+			myY=0;
+			myZ=0;
+			rotation=0;
 		}
 		//perspective changes
 		if(Keyboard.isKeyDown(Keyboard.KEY_O)){
+			//switch to orthographic
 			glMatrixMode(GL_MODELVIEW);
 		}
-
 		if(Keyboard.isKeyDown(Keyboard.KEY_P)){
-
+			//switch to perspective
 			glMatrixMode(GL_PROJECTION);
 		}
 
+		//translation
+		if(Keyboard.isKeyDown(Keyboard.KEY_A)){
+			//move left
+			myX--;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_D)){
+			//move right
+			myX++;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_W)){
+			//move forward
+			myZ++;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_S)){
+			//move backward
+			myZ--;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_R)){
+			//move up
+			myY++;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_F)){
+			//move down
+			myY--;
+		}
+
+		//turn
+		if(Keyboard.isKeyDown(Keyboard.KEY_Q)){
+			//turn left
+			rotation--;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_E)){
+			//turn right
+			rotation++;
+			
+		}
 
 	}
 
@@ -96,9 +143,12 @@ public class StudentLWJGLController implements CS355LWJGLController
 	{
 		//This clears the screen.
 		glClear(GL_COLOR_BUFFER_BIT);
+		//apply translations
+		glLoadIdentity(); //clear matrix
+		glTranslatef(myX,myY,myZ); //applyTranslationMatrix
+		glRotatef(rotation,1,0,0);//applyRotationMatrix
 		Iterator<Line3D> lines= model.getLines();
 		Line3D currentLine;
-
 		while(lines.hasNext()){
 			currentLine=lines.next();
 			glBegin(GL_LINES);
