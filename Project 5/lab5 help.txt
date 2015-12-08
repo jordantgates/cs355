@@ -1,0 +1,9 @@
+For Lab #5, you will need to implement your own matrices and vectors, including multiplying matrices together.  
+
+Here is Java code for multiplying two matrices:
+
+for (int i = 0; i < N; i++)
+   for (int j = 0; j < N; j++)
+      for (int k = 0; k < N; k++)
+         C[i][j] += A[i][k] * B[k][j];
+Matrix times vector multiplication is similar, just drop the j loop and the [j] secondary index.
